@@ -1,0 +1,142 @@
+"use client";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const fetchAssignments = async (status: string, terminal: string) => {
+  const response = await axios.get(`/api/assignments?terminal=${terminal}&status=${status}`);
+  return response.data;
+};
+
+const fetchIdleAssignments = async (terminal: string) => {
+  const response = await axios.get(`/api/assignments?terminal=${terminal}&status=idle`);
+  return response.data;
+};
+
+const updateAssignment = async (id: number, status: string, terminal: string) => {
+  await axios.put('/api/assignments', { id, status, terminal });
+};
+
+const Terminal2 = () => {
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [idleAssignments, setIdleAssignments] = useState<any[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('queued');
+
+  useEffect(() => {
+    const loadAssignments = async () => {
+      const data = await fetchAssignments(statusFilter, 'terminal2');
+      setAssignments(data);
+    };
+
+    const loadIdleAssignments = async () => {
+      const data = await fetchIdleAssignments('terminal2');
+      setIdleAssignments(data);
+    };
+
+    loadAssignments();
+    loadIdleAssignments();
+    const intervalId = setInterval(() => {
+      loadAssignments();
+      loadIdleAssignments();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [statusFilter]);
+
+  const handleStatusChange = async (id: number, newStatus: string) => {
+    const currentTerminal = 'terminal2';
+    if (newStatus === 'departed') {
+      await updateAssignment(id, 'departed', 'terminal1');
+      setTimeout(async () => {
+        await updateAssignment(id, 'idle', 'terminal1');
+        const data = await fetchAssignments(statusFilter, 'terminal2');
+        setAssignments(data);
+      }, 10000);
+    } else if (newStatus === 'arrived') {
+      await updateAssignment(id, 'arrived', currentTerminal);
+    } else {
+      await updateAssignment(id, newStatus, currentTerminal);
+    }
+    const data = await fetchAssignments(statusFilter, currentTerminal);
+    setAssignments(data);
+  };
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Terminal 2</h1>
+      
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Idle Vans</h2>
+        <ul className="bg-white shadow-md rounded-lg divide-y divide-gray-200">
+          {idleAssignments.map((assignment: any) => (
+            <li key={assignment.id} className="p-4 flex justify-between items-center">
+              <span className="font-medium text-gray-900">
+                Operator: {assignment.Operator.firstname} {assignment.Operator.lastname} - Plate Number: {assignment.Van.plate_number} - Status: {assignment.status}
+              </span>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                onClick={() => handleStatusChange(assignment.id, 'queued')}
+              >
+                Queue
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+      
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Other Statuses</h2>
+        <div className="mb-4 flex space-x-4">
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold ${statusFilter === 'queued' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setStatusFilter('queued')}
+          >
+            Show Queued
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold ${statusFilter === 'waiting' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setStatusFilter('waiting')}
+          >
+            Show Waiting
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold ${statusFilter === 'departed' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setStatusFilter('departed')}
+          >
+            Show Departed
+          </button>
+        </div>
+        <ul className="bg-white shadow-md rounded-lg divide-y divide-gray-200">
+          {assignments.map((assignment: any) => (
+            <li key={assignment.id} className="p-4 flex justify-between items-center">
+              <span className="font-medium text-gray-900">
+                Operator: {assignment.Operator.firstname} {assignment.Operator.lastname} - Plate Number: {assignment.Van.plate_number} - Status: {assignment.status}
+              </span>
+              <div className="flex space-x-2">
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600"
+                  onClick={() => handleStatusChange(assignment.id, 'queued')}
+                >
+                  Queue
+                </button>
+                <button
+                  className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600"
+                  onClick={() => handleStatusChange(assignment.id, 'waiting')}
+                >
+                  Wait
+                </button>
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                  onClick={() => handleStatusChange(assignment.id, 'departed')}
+                >
+                  Depart
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+};
+
+export default Terminal2;
