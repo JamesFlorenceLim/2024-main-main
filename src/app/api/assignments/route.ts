@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
-  const { operator_id, van_ids } = await req.json();
+  const { driver_id, van_ids } = await req.json();
 
   try {
     const newAssignments = await Promise.all(
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         return prisma.assignment.create({
           data: {
             van_id,
-            operator_id,
+            driver_id,
           },
         });
       })
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const { id, operator_id, van_ids } = await req.json();
+  const { id, driver_id, van_ids } = await req.json();
 
   try {
     const updatedAssignments = await Promise.all(
@@ -55,7 +55,7 @@ export async function PUT(req: NextRequest) {
           where: { id },
           data: {
             van_id,
-            operator_id,
+            driver_id,
           },
         });
       })
@@ -71,9 +71,12 @@ export async function GET(req: NextRequest) {
   try {
     const assignments = await prisma.assignment.findMany({
       include: {
-        Operator: true, // Ensure this matches the model name in your schema
-        Van: true,      // Ensure this matches the model name in your schema
-        Driver: true,   // Ensure this matches the model name in your schema
+        Van: {
+          include: {
+            Operator: true, // Include operator details
+          },
+        },
+        Driver: true, // Include driver details
       },
     });
     return NextResponse.json(assignments);
@@ -81,6 +84,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: 'Failed to retrieve assignments', error: error.message }, { status: 500 });
   }
 }
+
 
 export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
@@ -96,18 +100,3 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-export async function assignDriver(req: NextRequest) {
-  const { assignment_id, driver_id } = await req.json();
-
-  try {
-    const assignment = await prisma.assignment.update({
-      where: { id: assignment_id },
-      data: { driver_id },
-    });
-
-    return NextResponse.json(assignment);
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: errorMessage }, { status: 400 });
-  }
-}

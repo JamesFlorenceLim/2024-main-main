@@ -32,7 +32,7 @@ const OperatorList = () => {
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 2;
+  const rowsPerPage = 8;
   const totalPages = Math.ceil(operatorList.length / rowsPerPage);
   const [isConfirmArchiveOpen, setIsConfirmArchiveOpen] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
@@ -255,6 +255,7 @@ const OperatorList = () => {
             onClick={handlePrevious}
             disabled={currentPage === 1}
           >
+
             <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m15 18-6-6 6-6"></path>
             </svg>

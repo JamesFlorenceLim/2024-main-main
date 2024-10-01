@@ -31,6 +31,7 @@ export async function PUT(req: NextRequest) {
     net_capacity,
     year_last_registered,
     expiration_date,
+    operator_id,
   } = await req.json();
 
   // Validate and parse the weights and capacities
@@ -66,6 +67,7 @@ export async function PUT(req: NextRequest) {
         net_capacity: parsedNetCapacity,
         year_last_registered: parseInt(year_last_registered, 10),
         expiration_date: new Date(expiration_date),
+        operator_id: operator_id ? Number(operator_id) : null,
       },
     });
 

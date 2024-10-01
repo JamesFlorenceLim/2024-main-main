@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
-import { Operator, Van } from '@/types';
+import { Driver, Van } from '@/types';
 import '../assignments/style.module.css'; // Import the CSS file
 
 const AssignmentForm = () => {
-  const [operators, setOperators] = useState<Operator[]>([]);
+  const [drivers, setdrivers] = useState<Driver[]>([]);
   const [vans, setVans] = useState<Van[]>([]);
   const [assignments, setAssignments] = useState([]);
-  const [assignment, setAssignment] = useState<{ id: number | null; operator_id: number; van_ids: number[] }>({ id: null, operator_id: 0, van_ids: [] });
+  const [assignment, setAssignment] = useState<{ id: number | null; driver_id: number; van_ids: number[] }>({ id: null, driver_id: 0, van_ids: [] });
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 8;
@@ -22,12 +22,12 @@ const AssignmentForm = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [operatorsData, vansData, assignmentsData] = await Promise.all([
-        axios.get('/api/operators'),
+      const [driversData, vansData, assignmentsData] = await Promise.all([
+        axios.get('/api/drivers'),
         axios.get('/api/vans'),
         axios.get('/api/assignments')
       ]);
-      setOperators(operatorsData.data);
+      setdrivers(driversData.data);
       setVans(vansData.data);
       setAssignments(assignmentsData.data);
     };
@@ -87,7 +87,7 @@ const AssignmentForm = () => {
         await axios.post('/api/assignments', assignment);
         alert('Assignment created successfully');
       }
-      setAssignment({ id: null, operator_id: 0, van_ids: [] });
+      setAssignment({ id: null, driver_id: 0, van_ids: [] });
       setIsEditing(false);
       const { data } = await axios.get('/api/assignments');
       setAssignments(data);
@@ -116,21 +116,21 @@ const AssignmentForm = () => {
   };
 
   const handleCancel = () => {
-    setAssignment({ id: null, operator_id: 0, van_ids: [] });
+    setAssignment({ id: null, driver_id: 0, van_ids: [] });
     setIsEditing(false);
   };
 
-  //const assignedOperatorIds = assignments.map((assignment: any) => assignment.operator_id);
-  const assignedVanIds = assignments.map((assignment: any) => assignment.van_id);
+  // //const assigneddriverIds = assignments.map((assignment: any) => assignment.driver_id);
+  // const assignedVanIds = assignments.map((assignment: any) => assignment.van_id);
 
-  //const availableOperators = operators.filter(operator => !assignedOperatorIds.includes(operator.id) || operator.id === assignment.operator_id);
-  const availableVans = vans.filter(van => !assignedVanIds.includes(van.id) || assignment.van_ids.includes(van.id));
+  // //const availabledrivers = drivers.filter(driver => !assigneddriverIds.includes(driver.id) || driver.id === assignment.driver_id);
+  const availableVans = vans.filter(van => (van.id) || assignment.van_ids.includes(van.id));
 
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="p-4 sm:p-6 lg:p-8" style={{ marginLeft: '-46.1rem', marginTop: '-2rem' }}>
-        <h2 className="text-2xl font-normal text-gray-600">Van Operator Assignment</h2>
-        <p className="text-gray-500 dark:text-gray-400">Manage and Assign Operators to Vans</p>
+        <h2 className="text-2xl font-normal text-gray-600">Van driver Assignment</h2>
+        <p className="text-gray-500 dark:text-gray-400">Manage and Assign drivers to Vans</p>
       </div>
 
       <div className="flex flex-col w-full max-w-6xl" style={{ marginLeft: '10rem' }}>
@@ -141,16 +141,16 @@ const AssignmentForm = () => {
         <div className="flex mb-4 space-x-4 ">
           <div className="w-52 ml-80">
             <select
-              name="operator_id"
-              value={assignment.operator_id}
+              name="driver_id"
+              value={assignment.driver_id}
               onChange={handleChange}
               required
               className=" cursor-pointer block w-full bg-white border border-gray-300 px-4 py-2 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
             >
-              <option value="">Select Operator</option>
-              {operators.map((operator) => (
-                <option key={operator.id} value={operator.id}>
-                  {operator.firstname} {operator.lastname}
+              <option value="">Select driver</option>
+              {drivers.map((driver) => (
+                <option key={driver.id} value={driver.id}>
+                  {driver.firstname} {driver.lastname}
                 </option>
               ))}
             </select>
@@ -174,7 +174,7 @@ const AssignmentForm = () => {
                   onChange={handleChange}
                   className="mr-2"
                 />
-                {van.plate_number}
+                {van.plate_number} 
               </div>
             ))}
           </div>
@@ -199,7 +199,7 @@ const AssignmentForm = () => {
         <table className="rounded-lg mx-auto overflow-hidden mt-[-3rem] w-full" style={{ tableLayout: 'fixed', width: '79rem', marginLeft: '-1rem' }}>
           <thead className="bg-blue-500 text-xs text-center">
             <tr className="text-white">
-              <th className="px-6 py-2 text-left font-normal rounded-l-lg">Operator</th>
+              <th className="px-6 py-2 text-left font-normal rounded-l-lg">driver</th>
               <th className="px-32 py-2 text-left font-normal">Van</th>
               <th className="px-80 py-2 text-left font-normal rounded-r-lg">Actions</th>
             </tr>
@@ -208,7 +208,7 @@ const AssignmentForm = () => {
             {currentRows.map((assignment: any) => (
               <tr key={assignment.id} className="border-b">
                 <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                  {operators.find((operator) => operator.id === assignment.operator_id)?.firstname} {operators.find((operator) => operator.id === assignment.operator_id)?.lastname}
+                  {drivers.find((driver) => driver.id === assignment.driver_id)?.firstname} {drivers.find((driver) => driver.id === assignment.driver_id)?.lastname}
                 </td>
                 <td className="px-32 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
                   {vans.find((van) => van.id === assignment.van_id)?.plate_number}

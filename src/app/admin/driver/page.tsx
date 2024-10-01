@@ -11,10 +11,11 @@ import Modal from './Modal';
 const OperatorsPage = () => {
   const [formType, setFormType] = useState("operator"); // To control which form to show
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [form, setForm] = useState("operator");
+
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
   // Handle form switch based on dropdown value
   const handleFormChange = (e) => {
     setFormType(e.target.value);
@@ -58,10 +59,27 @@ const OperatorsPage = () => {
       )}
 
       
+
+<div className="flex items-center ml-52">
+        <span className="mr-2">Operator</span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input 
+        type="checkbox" 
+        className="sr-only peer" 
+        checked={form === "driver"} 
+        onChange={() => setForm(form === "operator" ? "driver" : "operator")} 
+          />
+          <div className="w-11 h-6 bg-gray-300 rounded-full 
+             peer-checked:after:translate-x-full
+             peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 "></div>
+        </label>
+        <span className="ml-2">Driver</span>
+      </div>
         
-        <OperatorList/>
-        
-        <DriverList/>
+       
+          
+      {form === "operator" ? <OperatorList /> : <DriverList />}
+      
 
     </div>
   );

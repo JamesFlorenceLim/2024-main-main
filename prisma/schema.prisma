@@ -23,7 +23,8 @@ model Operator {
   emergency_contact  String   // New field for emergency contact number
   archived           Boolean  @default(false)
 
-  Assignment         Assignment[]
+  
+  Van                Van[]
 }
 
 model Driver {
@@ -72,13 +73,18 @@ model Van {
   expiration_date     DateTime
   archived            Boolean @default(false)
 
+  operator_id         Int? // Add this field
+ 
+  Operator     Operator?  @relation(fields: [operator_id], references: [id])
+
+
   Assignment          Assignment[]
 }
 
 model Assignment {
   id           Int       @id @default(autoincrement())
   van_id       Int
-  operator_id  Int?
+  
   driver_id    Int?
   assigned_at  DateTime   @default(now())
   status       AssignmentStatus @default(idle)
@@ -90,7 +96,7 @@ model Assignment {
   departureTime DateTime? // New field for departure time
 
   Van          Van        @relation(fields: [van_id], references: [id])
-  Operator     Operator?  @relation(fields: [operator_id], references: [id])
+  
   Driver       Driver?    @relation(fields: [driver_id], references: [id])
 
   Queue Queue[]

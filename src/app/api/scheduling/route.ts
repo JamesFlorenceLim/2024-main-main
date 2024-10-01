@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
     const body = await request.json();
-    const { id, status, terminal, order } = body;
+    const { id, status, terminal, order, arrivalTime, departureTime } = body;
 
     if (typeof id !== 'number' || !status || !terminal) {
         return NextResponse.json({ error: 'ID, status, and terminal are required and must be valid' }, { status: 400 });
@@ -57,7 +57,18 @@ export async function PUT(request: Request) {
     try {
         let newTerminal: TerminalType | undefined;
 
-        if (status === 'departed') {
+        const updateData: any = { status, terminal: newTerminal, order };
+
+        if (status === 'queued') {
+            updateData.queued_at = new Date(); // Set queued_at timestamp
+            const lastAssignment = await prisma.assignment.findFirst({
+                where: { terminal, status: 'queued' },
+                orderBy: { order: 'desc' },
+            });
+            const nextOrder = lastAssignment ? lastAssignment.order + 1 : 1;
+            updateData.order = nextOrder;
+
+        } else if (status === 'departed') {
             const firstInQueue = await prisma.assignment.findFirst({
                 where: { terminal, status: 'queued' },
                 orderBy: { order: 'asc' },
@@ -68,34 +79,18 @@ export async function PUT(request: Request) {
             }
 
             newTerminal = terminal === 'terminal1' ? 'terminal2' : 'terminal1';
+            updateData.terminal = newTerminal;
+            updateData.departureTime = new Date(); // Set departure time
+
         } else if (status === 'arrived') {
-            newTerminal = terminal;
-        } else {
+            updateData.arrivalTime = new Date(); // Set arrival time
             newTerminal = terminal;
         }
 
-        if (newTerminal !== 'terminal1' && newTerminal !== 'terminal2') {
-            return NextResponse.json({ error: 'Invalid terminal type' }, { status: 400 });
-        }
-
-        // Update the assignment
         await prisma.assignment.update({
             where: { id },
-            data: { status, terminal: newTerminal, order },
+            data: updateData,
         });
-
-        if (status === 'queued') {
-            const lastAssignment = await prisma.assignment.findFirst({
-                where: { terminal, status: 'queued' },
-                orderBy: { order: 'desc' },
-            });
-            const nextOrder = lastAssignment ? lastAssignment.order + 1 : 1;
-
-            await prisma.assignment.update({
-                where: { id },
-                data: { order: nextOrder },
-            });
-        }
 
         return NextResponse.json({ message: 'Updated successfully' });
     } catch (error) {

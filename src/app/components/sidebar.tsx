@@ -107,7 +107,7 @@ const Sidebar = () => {
                 <span className="text-sm font-bold">Assignments</span>
           </Link>
 
-          <Link href="/admin/assignDriver"
+          {/* <Link href="/admin/assignDriver"
             className={`relative flex items-center space-x-2 p-2 rounded-md mt-2 group cursor-pointer ${activeLink === '/admin/assignDriver' ? 'bg-custom-white text-custom-black' : 'text-gray-400 hover:bg-custom-white hover:text-custom-black'}`}
             onClick={() => setActiveLink('/admin/assignDriver')}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="gray" className={`w-5 h-5 ${activeLink === '/admin/assignDriver' ? 'stroke-custom-black' : 'group-hover:stroke-custom-black'}`}>
@@ -119,7 +119,7 @@ const Sidebar = () => {
               <path d="M2 7H5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <span className="text-sm font-bold">Assign Driver</span>
-          </Link>
+          </Link> */}
 
           <Link href="/admin/register"
                 className={`relative flex items-center space-x-2 p-2 rounded-md mt-2 group cursor-pointer ${activeLink === '/admin/register' ? 'bg-custom-white text-custom-black' : 'text-gray-400 hover:bg-custom-white hover:text-custom-black'}`}

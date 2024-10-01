@@ -55,7 +55,7 @@ const DriverList = () => {
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 2;
+  const rowsPerPage = 8;
   const totalPages = Math.ceil(operatorList.length / rowsPerPage);
   const [isConfirmArchiveOpen, setIsConfirmArchiveOpen] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);

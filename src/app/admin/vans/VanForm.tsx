@@ -3,7 +3,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import Modal from "./Modal"; // Import the Modal component
-import { Van } from "@/types";
+import { Van, Operator } from "@/types";
 
 const VanForm = () => {
   const [van, setVan] = useState<string[]>([
@@ -25,8 +25,10 @@ const VanForm = () => {
     "",
     "",
     "",
+    "",
   ]);
   const [vanList, setVanList] = useState<Van[]>([]);
+  const [operatorList, setOperatorList] = useState<Operator[]>([]); // Add this line
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedVan, setSelectedVan] = useState<Van | null>(null);
@@ -63,7 +65,17 @@ const VanForm = () => {
       }
     };
 
+    const fetchOperators = async () => { // Add this function to fetch operators
+      try {
+        const response = await axios.get("/api/operators"); // Adjust the endpoint as needed
+        setOperatorList(response.data);
+      } catch (error) {
+        console.error("Failed to fetch operators:", error);
+      }
+    };
+
     fetchVans();
+    fetchOperators(); 
   }, []);
 
   useEffect(() => {
@@ -213,9 +225,11 @@ const VanForm = () => {
         net_capacity: van[16],
         year_last_registered: van[17],
         expiration_date: van[18],
+        operator_id: van[19],
       });
       alert("Van registered successfully");
       setVan([
+        "",
         "",
         "",
         "",
@@ -444,6 +458,26 @@ const VanForm = () => {
   <label htmlFor="expiration_date" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Expiration Date</label>
   <input type="date" name="18" value={van[18]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
 </div>
+
+<div className="relative w-full" style={{ marginTop: '3.7rem', width: '27.45rem', marginLeft: '-32.7rem' }}>
+  <label htmlFor="operator_id" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Select Operator</label>
+  <select 
+    name="19" 
+    onChange={handleRegisterChange} 
+    required 
+    value={van[19]} // This should map to the operator's ID in your state
+    className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right"
+    style={{ height: '3.8rem' }} 
+  >
+    <option value="">Choose an operator</option>
+    {operatorList.map((operator) => (
+      <option key={operator.id} value={operator.id}>
+        {operator.firstname} {operator.lastname}{/* Adjust based on your Operator structure */}
+      </option>
+    ))}
+  </select>
+</div>
+
   </div>
   <button type="submit"
     className="text-white inline-flex items-center bg-emerald-500 hover:bg-emerald-600 focus:ring-4 focus:ring-green-500
@@ -708,6 +742,26 @@ const VanForm = () => {
           <label htmlFor="expiration_date" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Expiration Date</label>
           <input type="text" name="expiration_date" value={selectedVan.expiration_date} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
         </div>
+        
+        <div className="relative w-full" style={{ marginTop: '3.7rem', width: '27.45rem', marginLeft: '-32.7rem' }}>
+          <label htmlFor="operator_id" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Select Operator</label>
+          <select 
+            name="operator_id" 
+            onChange={handleViewChange} 
+            required 
+            value={selectedVan.operator_id} // This should map to the operator's ID in your state
+            className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right"
+            style={{ height: '3.8rem' }} 
+            disabled={!isEditMode}
+          >
+            <option value="">Choose an operator</option>
+            {operatorList.map((operator) => (
+              <option key={operator.id} value={operator.id}>
+                {operator.firstname} {operator.lastname}{/* Adjust based on your Operator structure */}
+              </option>
+            ))}
+          </select>
+          </div>
       </div>
       {!isEditMode && (
         <button onClick={handleEdit} className="text-white inline-flex items-center bg-emerald-500 hover:bg-emerald-600 focus:ring-4 focus:ring-green-500 font-medium rounded-lg text-sm px-5 py-2.5 mt-7 text-center" style={{ marginLeft: '42rem' }}>

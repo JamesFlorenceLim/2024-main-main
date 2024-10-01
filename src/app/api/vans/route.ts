@@ -3,8 +3,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-
-
 export async function POST(req: NextRequest) {
   try {
     const {
@@ -27,6 +25,7 @@ export async function POST(req: NextRequest) {
       net_capacity,
       year_last_registered,
       expiration_date,
+      operator_id, // Include operator_id in the request
     } = await req.json();
 
     const newVan = await prisma.van.create({
@@ -50,6 +49,7 @@ export async function POST(req: NextRequest) {
         net_capacity: parseInt(net_capacity, 10),
         year_last_registered: parseInt(year_last_registered, 10),
         expiration_date: new Date(expiration_date),
+        operator_id: operator_id ? Number(operator_id) : null, // Associate operator_id with the van
       },
     });
 
@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
   try {
     const vans = await prisma.van.findMany({
       where: { archived: false },
+      include: { Operator: true }, // Optionally include operator information
     });
     return NextResponse.json(vans);
   } catch (error: any) {

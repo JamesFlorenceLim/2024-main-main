@@ -25,6 +25,7 @@ export interface Operator {
 }
 
 export interface Van {
+  operator: any;
   firstname: string;
   lastname: string;
   id: number;
@@ -47,6 +48,7 @@ export interface Van {
   net_capacity: number;
   year_last_registered: number;
   expiration_date: string;
+  operator_id: number;
 }
 
 export interface SimpleVan {
